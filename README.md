@@ -12,8 +12,9 @@ proxy, systemd units, and a default configuration.
 
 - Upstream: https://github.com/gtsteffaniak/filebrowser
 - Upstream tag: `v2.0.2-stable`
-- TOS / Debian package version: `2.0.2` (the `-stable` suffix is not a Debian
-  version component; the packaged software is exactly `v2.0.2-stable`)
+- TOS / Debian package version: `2.0.3` (wrapper revision). The packaged
+  software is still exactly upstream `v2.0.2-stable`. The `-stable` suffix is
+  not a Debian version component.
 - Corresponding source: https://github.com/gtsteffaniak/filebrowser/archive/refs/tags/v2.0.2-stable.tar.gz
 - License: [Apache License 2.0](LICENSE)
 - Attribution: see [NOTICE](NOTICE)
@@ -63,8 +64,8 @@ runs `dpkg-deb --info` and `dpkg-deb --contents`.
 
 Output:
 
-- `apps/tos7/dist/filebrowser-quantum_2.0.2_x86_64.deb`
-- `apps/tos7/dist/filebrowser-quantum_2.0.2_aarch64.deb`
+- `apps/tos7/dist/filebrowser-quantum_2.0.3_x86_64.deb`
+- `apps/tos7/dist/filebrowser-quantum_2.0.3_aarch64.deb`
 
 Build directories, downloaded upstream binaries, and `.deb` files are gitignored
 and must not be committed.
@@ -81,3 +82,7 @@ and must not be committed.
 FileBrowser Quantum and this packaging are licensed under the Apache License
 2.0. You must preserve the license, NOTICE, and upstream attribution when
 redistributing.
+
+## Privacy and uninstall
+
+The privacy policy is published at [docs/PRIVACY.md](docs/PRIVACY.md) and is also shipped inside the package. Uninstalling the application removes `/usr/local/filebrowser-quantum` (including `data/INITIAL_ADMIN.txt`, the application database, and cache), the service user, the systemd unit, and `/var/api/filebrowser-quantum.sock`. It does **not** delete user files on NAS volume mounts such as `/mnt/md0` or `/Volume1`.
