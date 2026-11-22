@@ -1,0 +1,40 @@
+[Unit]
+Description=FileBrowser Quantum WebUI service
+After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+Type=simple
+User=filebrowser-quantum
+WorkingDirectory=/usr/local/filebrowser-quantum
+ExecStart=/usr/bin/python3 /usr/local/filebrowser-quantum/bin/filebrowser-quantum-service
+ExecStopPost=-/bin/rm -f /var/api/filebrowser-quantum.sock
+EnvironmentFile=-/usr/local/filebrowser-quantum/filebrowser-quantum.env
+TimeoutStartSec=30
+TimeoutStopSec=10
+KillMode=control-group
+KillSignal=SIGTERM
+SendSIGKILL=yes
+
+# Keep only sandbox directives verified across the TOS 7.0 and 7.1 kernels.
+# Several stricter directives accepted by Ubuntu systemd are rejected by some
+# TOS 7.0 kernels with status=203/EXEC before the process can start.
+ProtectSystem=strict
+ProtectHome=true
+ProtectControlGroups=true
+
+# /var/api is a shared TOS directory and must remain writable for the
+# application-owned Unix socket. PrivateTmp is intentionally omitted.
+# Do not set Group=<appid>.
+# /mnt is included so first-run TOS volume sources such as /mnt/md0 can be used.
+ReadWritePaths=/usr/local/filebrowser-quantum/data /usr/local/filebrowser-quantum/logs /var/api /mnt
+LimitNOFILE=65536
+LimitNPROC=512
+MemoryMax=1G
+CPUQuota=75%
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

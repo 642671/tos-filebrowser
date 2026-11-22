@@ -1,0 +1,35 @@
+http:
+  port: 18742
+  listen: "127.0.0.1"
+  baseURL: "/filebrowser-quantum"
+  trustProxyHeaders: true
+
+server:
+  logging:
+    - levels: "info|error|warning"
+      output: "stdout"
+  cacheDir: "/usr/local/filebrowser-quantum/data/cache"
+  database:
+    path: "/usr/local/filebrowser-quantum/data/filebrowser.sqlite"
+  sources:
+    - path: "/usr/local/filebrowser-quantum/data/files"
+      name: "App Files"
+      config:
+        defaultEnabled: true
+        defaultPermissions:
+          view: true
+          download: true
+          modify: true
+          delete: true
+          create: true
+
+auth:
+  adminUsername: admin
+  methods:
+    password:
+      enabled: true
+      minLength: 5
+      signup: false
+
+frontend:
+  name: "FileBrowser Quantum"

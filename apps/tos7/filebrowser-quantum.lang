@@ -1,0 +1,97 @@
+[zh-cn]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "在浏览器里管理 NAS 文件，支持预览与分享。本应用是官方 FileBrowser Quantum 的 TOS 套壳。"
+release_note = "2.0.2：首次以官方 FileBrowser Quantum v2.0.2-stable Linux 二进制打包为 TOS 7 iframe Deb 应用，提供 x86_64 与 aarch64 版本。"
+important = "本应用是官方 FileBrowser Quantum（Apache-2.0）的 TOS 套壳，不会声称拥有上游著作权。首次启动的管理员账号与密码写在 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt，请登录后立即修改。"
+
+[zh-hk]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "在瀏覽器裡管理 NAS 檔案，支援預覽與分享。本應用是官方 FileBrowser Quantum 的 TOS 套殼。"
+release_note = "2.0.2：首次以官方 FileBrowser Quantum v2.0.2-stable Linux 二進位檔打包為 TOS 7 iframe Deb 應用，提供 x86_64 與 aarch64 版本。"
+important = "本應用是官方 FileBrowser Quantum（Apache-2.0）的 TOS 套殼，不會聲稱擁有上游著作權。首次啟動的管理員帳號與密碼寫在 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt，請登入後立即修改。"
+
+[en-us]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Manage NAS files in the browser with previews and sharing. This app wraps official FileBrowser Quantum for TOS."
+release_note = "2.0.2: first TOS 7 iframe Deb packaging of the official FileBrowser Quantum v2.0.2-stable Linux binaries, for x86_64 and aarch64."
+important = "This app is a TOS wrapper of official FileBrowser Quantum (Apache-2.0) and does not claim upstream copyright. The first-run admin password is stored in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; change it after login."
+
+[fr-fr]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Gerez les fichiers du NAS dans le navigateur, avec apercus et partage. Enveloppe TOS de FileBrowser Quantum officiel."
+release_note = "2.0.2 : premier empaquetage TOS 7 iframe Deb des binaires Linux officiels FileBrowser Quantum v2.0.2-stable, pour x86_64 et aarch64."
+important = "Cette application est une enveloppe TOS de FileBrowser Quantum officiel (Apache-2.0). Le mot de passe admin initial est dans /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt ; changez-le apres connexion."
+
+[de-de]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "NAS-Dateien im Browser verwalten, inkl. Vorschau und Freigabe. TOS-Huelle des offiziellen FileBrowser Quantum."
+release_note = "2.0.2: erste TOS-7-iframe-Deb-Pakete der offiziellen FileBrowser-Quantum-v2.0.2-stable-Linux-Binaries fuer x86_64 und aarch64."
+important = "Diese App ist eine TOS-Huelle fuer das offizielle FileBrowser Quantum (Apache-2.0). Das erstmalige Admin-Passwort steht in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; bitte nach dem Login aendern."
+
+[it-it]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Gestisci i file del NAS nel browser, con anteprime e condivisioni. Wrapper TOS di FileBrowser Quantum ufficiale."
+release_note = "2.0.2: primo pacchetto TOS 7 iframe Deb dei binari Linux ufficiali FileBrowser Quantum v2.0.2-stable, per x86_64 e aarch64."
+important = "Questa app e un wrapper TOS di FileBrowser Quantum ufficiale (Apache-2.0). La password admin iniziale e in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; cambiala dopo l'accesso."
+
+[es-es]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Administre los archivos del NAS en el navegador, con vistas previas y uso compartido. Envoltorio TOS de FileBrowser Quantum oficial."
+release_note = "2.0.2: primer empaquetado TOS 7 iframe Deb de los binarios Linux oficiales de FileBrowser Quantum v2.0.2-stable, para x86_64 y aarch64."
+important = "Esta aplicacion es un envoltorio TOS de FileBrowser Quantum oficial (Apache-2.0). La contrasena admin inicial esta en /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; cambiela tras iniciar sesion."
+
+[hu-hu]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "NAS fajlok kezelese bongeszoben, elonezettel es megosztassal. A hivatalos FileBrowser Quantum TOS burkolasa."
+release_note = "2.0.2: a hivatalos FileBrowser Quantum v2.0.2-stable Linux binarisok elso TOS 7 iframe Deb csomagolasa x86_64 es aarch64 platformra."
+important = "Ez az alkalmazas a hivatalos FileBrowser Quantum (Apache-2.0) TOS burkolasa. Az elso admin jelszo a /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt fajlban van; bejelentkezes utan valtoztassa meg."
+
+[ja-jp]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "ブラウザーで NAS のファイルを管理し、プレビューと共有ができます。公式 FileBrowser Quantum の TOS ラッパーです。"
+release_note = "2.0.2：公式 FileBrowser Quantum v2.0.2-stable Linux バイナリを TOS 7 iframe Deb として初めてパッケージ化し、x86_64 と aarch64 を提供します。"
+important = "本アプリは公式 FileBrowser Quantum（Apache-2.0）の TOS ラッパーです。初回管理者パスワードは /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt に保存されます。ログイン後に変更してください。"
+
+[ko-kr]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "브라우저에서 NAS 파일을 관리하고 미리보기와 공유를 제공합니다. 공식 FileBrowser Quantum의 TOS 래퍼입니다."
+release_note = "2.0.2: 공식 FileBrowser Quantum v2.0.2-stable Linux 바이너리를 TOS 7 iframe Deb로 처음 패키징하며 x86_64와 aarch64를 제공합니다."
+important = "이 앱은 공식 FileBrowser Quantum(Apache-2.0)의 TOS 래퍼입니다. 최초 관리자 비밀번호는 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt 에 저장되며, 로그인 후 변경하세요."
+
+[pl-pl]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Zarzadzaj plikami NAS w przegladarce, z podgladem i udostepnianiem. Opakowanie TOS oficjalnego FileBrowser Quantum."
+release_note = "2.0.2: pierwsze pakiety TOS 7 iframe Deb oficjalnych binariow Linux FileBrowser Quantum v2.0.2-stable dla x86_64 i aarch64."
+important = "Ta aplikacja to opakowanie TOS oficjalnego FileBrowser Quantum (Apache-2.0). Haslo admina z pierwszej instalacji jest w /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; zmien je po zalogowaniu."
+
+[ru-ru]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Управляйте файлами NAS в браузере, с предпросмотром и общим доступом. TOS-обёртка официального FileBrowser Quantum."
+release_note = "2.0.2: первая упаковка официальных Linux-бинарников FileBrowser Quantum v2.0.2-stable в TOS 7 iframe Deb для x86_64 и aarch64."
+important = "Это TOS-обёртка официального FileBrowser Quantum (Apache-2.0). Пароль администратора при первом запуске записан в /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; смените его после входа."
+
+[tr-tr]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "NAS dosyalarini tarayicida onizleme ve paylasimla yonetir. Resmi FileBrowser Quantum icin TOS sarmalayicisi."
+release_note = "2.0.2: resmi FileBrowser Quantum v2.0.2-stable Linux ikililerinin ilk TOS 7 iframe Deb paketlemesi, x86_64 ve aarch64 icin."
+important = "Bu uygulama resmi FileBrowser Quantum (Apache-2.0) icin bir TOS sarmalayicisidir. Ilk yonetici parolasi /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt dosyasindadir; giristen sonra degistirin."
+
+[pt-pt]
+name = "FileBrowser Quantum"
+auth = "qishiyi"
+descript = "Gira os ficheiros do NAS no navegador, com pre-visualizacao e partilha. Invólucro TOS do FileBrowser Quantum oficial."
+release_note = "2.0.2: primeira embalagem TOS 7 iframe Deb dos binarios Linux oficiais do FileBrowser Quantum v2.0.2-stable, para x86_64 e aarch64."
+important = "Esta aplicacao e um invólucro TOS do FileBrowser Quantum oficial (Apache-2.0). A palavra-passe admin inicial esta em /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; altere-a apos o login."

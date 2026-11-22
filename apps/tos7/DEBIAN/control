@@ -1,0 +1,10 @@
+Package: filebrowser-quantum
+Version: 2.0.2
+Architecture: amd64
+Section: utils
+Priority: optional
+Maintainer: qishiyi <qishiyi77@gmail.com>
+Depends: python3 (>= 3.10), systemd
+Description: FileBrowser Quantum for TOS 7
+ TOS 7 packaging of the official FileBrowser Quantum binary (Apache-2.0).
+ This package is a wrapper and does not claim upstream copyright.

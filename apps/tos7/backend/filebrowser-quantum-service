@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+"""Start official FileBrowser Quantum on 127.0.0.1 and proxy its TOS socket."""
+
+from __future__ import annotations
+
+import os
+import re
+import secrets
+import shutil
+import signal
+import socket
+import stat
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+from tos_unix_proxy import serve_proxy
+
+APP_ID = "filebrowser-quantum"
+APP_DIR = Path("/usr/local/filebrowser-quantum")
+UPSTREAM = Path(os.environ.get("FILEBROWSER_BIN") or APP_DIR / "bin" / "filebrowser")
+DEFAULT_CONFIG = APP_DIR / "conf" / "config.yaml"
+CONFIG = Path(os.environ.get("FILEBROWSER_CONFIG") or APP_DIR / "data" / "config.yaml")
+SOCKET_PATH = os.environ.get("APP_SOCKET_PATH") or f"/var/api/{APP_ID}.sock"
+LISTEN = os.environ.get("FILEBROWSER_LISTEN") or "127.0.0.1"
+PORT = int(os.environ.get("FILEBROWSER_PORT") or "18742")
+ADMIN_FILE = APP_DIR / "data" / "INITIAL_ADMIN.txt"
+BOOTSTRAP_FLAG = APP_DIR / "data" / ".bootstrap_done"
+FILES_DIR = APP_DIR / "data" / "files"
+CACHE_DIR = APP_DIR / "data" / "cache"
+TMP_DIR = APP_DIR / "data" / "tmp"
+VOLUME_CANDIDATES = (
+    "/mnt/md0",
+    "/mnt/md1",
+    "/mnt/md2",
+    "/mnt/md3",
+    "/Volume1",
+    "/Volume2",
+    "/Volume3",
+)
+
+
+def log(level: str, message: str) -> None:
+    print(f"[{APP_ID}] [{level}] {message}", flush=True)
+
+
+def detected_volumes() -> list[tuple[str, str]]:
+    found: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for raw in VOLUME_CANDIDATES:
+        path = Path(raw)
+        try:
+            if path.is_dir():
+                resolved = str(path)
+                if resolved not in seen:
+                    seen.add(resolved)
+                    found.append((resolved, path.name))
+        except OSError:
+            continue
+    return found
+
+
+def render_source_block(path: str, name: str) -> str:
+    return (
+        f"    - path: \"{path}\"\n"
+        f"      name: \"{name}\"\n"
+        "      config:\n"
+        "        defaultEnabled: true\n"
+        "        defaultPermissions:\n"
+        "          view: true\n"
+        "          download: true\n"
+        "          modify: true\n"
+        "          delete: true\n"
+        "          create: true\n"
+    )
+
+
+def install_default_config() -> None:
+    text = DEFAULT_CONFIG.read_text(encoding="utf-8")
+    extra = detected_volumes()
+    if extra:
+        # Insert additional sources after the default App Files source block
+        # by appending them under server.sources. The shipped default already
+        # contains the App Files source; we add volume roots only on first run.
+        addition = "".join(render_source_block(path, name) for path, name in extra)
+        marker = "          create: true\n"
+        # append after the first (and only) default source's permissions
+        index = text.find(marker)
+        if index != -1:
+            index += len(marker)
+            text = text[:index] + addition + text[index:]
+        log("INFO", "added first-run volume sources: " + ", ".join(p for p, _ in extra))
+    CONFIG.write_text(text, encoding="utf-8", newline="\n")
+
+
+def ensure_layout() -> None:
+    for path in (APP_DIR / "data", APP_DIR / "logs", FILES_DIR, CACHE_DIR, TMP_DIR):
+        path.mkdir(parents=True, exist_ok=True)
+    if not CONFIG.exists():
+        if not DEFAULT_CONFIG.is_file():
+            raise SystemExit(f"default config missing: {DEFAULT_CONFIG}")
+        install_default_config()
+        log("INFO", f"installed default config at {CONFIG}")
+
+
+def generate_password() -> str:
+    # Speakable-ish and compatible with FileBrowser minLength.
+    return "tos-" + secrets.token_hex(4) + "-" + secrets.token_hex(1)
+
+
+def prepare_admin_password() -> str | None:
+    if BOOTSTRAP_FLAG.exists() or ADMIN_FILE.exists():
+        return None
+    password = generate_password()
+    body = (
+        "FileBrowser Quantum first-run admin credentials\n"
+        "Username: admin\n"
+        f"Password: {password}\n"
+        "Change this password after the first login.\n"
+        "This file is created only once by the TOS packaging wrapper.\n"
+    )
+    tmp = ADMIN_FILE.with_suffix(".txt.tmp")
+    tmp.write_text(body, encoding="utf-8", newline="\n")
+    os.chmod(tmp, stat.S_IRUSR | stat.S_IWUSR)
+    tmp.replace(ADMIN_FILE)
+    os.chmod(ADMIN_FILE, stat.S_IRUSR | stat.S_IWUSR)
+    log("INFO", f"wrote first-run admin credentials to {ADMIN_FILE}")
+    return password
+
+
+def wait_for_port(host: str, port: int, timeout: float = 25.0) -> None:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.4):
+                return
+        except OSError:
+            time.sleep(0.1)
+    raise SystemExit(f"FileBrowser did not listen on {host}:{port} within {timeout}s")
+
+
+def main() -> int:
+    ensure_layout()
+    if not UPSTREAM.is_file():
+        raise SystemExit(f"upstream binary missing: {UPSTREAM}")
+    env = os.environ.copy()
+    password = prepare_admin_password()
+    if password:
+        env["FILEBROWSER_ADMIN_PASSWORD"] = password
+    proc = subprocess.Popen(
+        [str(UPSTREAM), "-c", str(CONFIG)],
+        cwd=str(APP_DIR),
+        env=env,
+    )
+
+    def shutdown(_signum=None, _frame=None) -> None:
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=8)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=2)
+
+    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
+    try:
+        if proc.poll() is not None:
+            log("ERROR", f"FileBrowser exited immediately with {proc.returncode}")
+            return proc.returncode or 1
+        wait_for_port(LISTEN, PORT)
+        if password and not BOOTSTRAP_FLAG.exists():
+            BOOTSTRAP_FLAG.write_text("ok\n", encoding="utf-8", newline="\n")
+        log("INFO", f"FileBrowser is listening on {LISTEN}:{PORT}")
+        try:
+            # FileBrowser registers routes under http.baseURL, so do not strip
+            # the /filebrowser-quantum prefix.
+            return serve_proxy(
+                SOCKET_PATH,
+                LISTEN,
+                PORT,
+                strip_prefix="",
+                socket_mode=0o660,
+            )
+        finally:
+            shutdown()
+            if os.path.lexists(SOCKET_PATH):
+                try:
+                    os.unlink(SOCKET_PATH)
+                except OSError:
+                    pass
+    except Exception:
+        shutdown()
+        raise
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

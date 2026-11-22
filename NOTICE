@@ -1,0 +1,25 @@
+FileBrowser Quantum TOS packaging
+=================================
+
+This repository packages the official FileBrowser Quantum binary for
+TerraMaster TOS 7 as an iframe Deb application. It is a packaging wrapper,
+not the upstream FileBrowser Quantum project itself, and it does not claim
+copyright in FileBrowser Quantum.
+
+Upstream project
+----------------
+- Name: FileBrowser Quantum
+- Repository: https://github.com/gtsteffaniak/filebrowser
+- Version packaged: v2.0.2-stable (Debian/TOS package version 2.0.2)
+- Official Linux binaries used unchanged:
+  - https://github.com/gtsteffaniak/filebrowser/releases/download/v2.0.2-stable/linux-amd64-filebrowser
+  - https://github.com/gtsteffaniak/filebrowser/releases/download/v2.0.2-stable/linux-arm64-filebrowser
+- Corresponding source: https://github.com/gtsteffaniak/filebrowser/archive/refs/tags/v2.0.2-stable.tar.gz
+  and https://github.com/gtsteffaniak/filebrowser/tree/v2.0.2-stable
+- License: Apache License 2.0 (see LICENSE)
+
+This packaging (systemd units, Unix-socket proxy, maintainer scripts, default
+configuration, and build scripts) is released under the Apache License 2.0.
+
+FileBrowser Quantum is Copyright (c) the FileBrowser Quantum authors. See the
+upstream repository for author and copyright notices.
