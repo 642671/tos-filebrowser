@@ -1,7 +1,10 @@
 http:
   port: 18742
   listen: "127.0.0.1"
-  baseURL: "/filebrowser-quantum"
+  # The TOS platform strips /v2/proxy/filebrowser-quantum before forwarding
+  # requests to the Unix socket. The local proxy restores this prefix so the
+  # upstream SPA, API, assets and WebSocket all share one working base path.
+  baseURL: "/v2/proxy/filebrowser-quantum/"
   trustProxyHeaders: true
 
 server:

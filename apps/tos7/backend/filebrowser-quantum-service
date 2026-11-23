@@ -12,6 +12,7 @@ import socket
 import stat
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -25,6 +26,7 @@ CONFIG = Path(os.environ.get("FILEBROWSER_CONFIG") or APP_DIR / "data" / "config
 SOCKET_PATH = os.environ.get("APP_SOCKET_PATH") or f"/var/api/{APP_ID}.sock"
 LISTEN = os.environ.get("FILEBROWSER_LISTEN") or "127.0.0.1"
 PORT = int(os.environ.get("FILEBROWSER_PORT") or "18742")
+PROXY_PREFIX = f"/v2/proxy/{APP_ID}"
 ADMIN_FILE = APP_DIR / "data" / "INITIAL_ADMIN.txt"
 BOOTSTRAP_FLAG = APP_DIR / "data" / ".bootstrap_done"
 FILES_DIR = APP_DIR / "data" / "files"
@@ -102,6 +104,34 @@ def ensure_layout() -> None:
             raise SystemExit(f"default config missing: {DEFAULT_CONFIG}")
         install_default_config()
         log("INFO", f"installed default config at {CONFIG}")
+    migrate_base_url()
+
+
+def migrate_base_url() -> None:
+    """Point an existing 2.0.3 config at the TOS proxy prefix."""
+    if not CONFIG.is_file():
+        return
+    try:
+        original = CONFIG.read_text(encoding="utf-8")
+    except OSError as exc:
+        log("WARNING", f"cannot read {CONFIG} for baseURL migration: {exc}")
+        return
+    updated, count = re.subn(
+        r'(?m)^(\s*baseURL:\s*).*$',
+        lambda match: match.group(1) + f'"{PROXY_PREFIX}/"',
+        original,
+    )
+    if count == 0 or updated == original:
+        return
+    tmp = CONFIG.with_suffix(CONFIG.suffix + ".tmp")
+    try:
+        tmp.write_text(updated, encoding="utf-8", newline="\n")
+        tmp.replace(CONFIG)
+    except OSError as exc:
+        log("WARNING", f"cannot migrate {CONFIG} baseURL: {exc}")
+        tmp.unlink(missing_ok=True)
+        return
+    log("INFO", f"migrated http.baseURL in {CONFIG} to {PROXY_PREFIX}/")
 
 
 def generate_password() -> str:
@@ -129,15 +159,26 @@ def prepare_admin_password() -> str | None:
     return password
 
 
-def wait_for_port(host: str, port: int, timeout: float = 25.0) -> None:
+def wait_for_port(
+    host: str,
+    port: int,
+    timeout: float = 90.0,
+    stop_event: threading.Event | None = None,
+) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
+        if stop_event is not None and stop_event.is_set():
+            return False
         try:
             with socket.create_connection((host, port), timeout=0.4):
-                return
+                return True
         except OSError:
-            time.sleep(0.1)
-    raise SystemExit(f"FileBrowser did not listen on {host}:{port} within {timeout}s")
+            if stop_event is not None:
+                if stop_event.wait(0.1):
+                    return False
+            else:
+                time.sleep(0.1)
+    return False
 
 
 def main() -> int:
@@ -154,45 +195,64 @@ def main() -> int:
         env=env,
     )
 
-    def shutdown(_signum=None, _frame=None) -> None:
-        if proc.poll() is None:
-            proc.terminate()
-            try:
-                proc.wait(timeout=8)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait(timeout=2)
+    stop_event = threading.Event()
 
-    signal.signal(signal.SIGTERM, shutdown)
-    signal.signal(signal.SIGINT, shutdown)
+    def request_shutdown(signum=None, _frame=None) -> None:
+        log("INFO", f"received signal {signum}; stopping")
+        stop_event.set()
+
+    signal.signal(signal.SIGTERM, request_shutdown)
+    signal.signal(signal.SIGINT, request_shutdown)
+
+    def shutdown() -> None:
+        if proc.poll() is not None:
+            return
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            log("WARNING", "FileBrowser ignored SIGTERM; sending SIGKILL")
+            proc.kill()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                log("ERROR", "FileBrowser did not exit after SIGKILL")
+
     try:
         if proc.poll() is not None:
             log("ERROR", f"FileBrowser exited immediately with {proc.returncode}")
             return proc.returncode or 1
-        wait_for_port(LISTEN, PORT)
+        log("INFO", "waiting for FileBrowser to listen (up to 90s on first start)")
+        if not wait_for_port(LISTEN, PORT, stop_event=stop_event):
+            if stop_event.is_set():
+                log("INFO", "shutdown requested before startup completed")
+                return 0
+            raise SystemExit(
+                f"FileBrowser did not listen on {LISTEN}:{PORT} within 90s"
+            )
         if password and not BOOTSTRAP_FLAG.exists():
             BOOTSTRAP_FLAG.write_text("ok\n", encoding="utf-8", newline="\n")
         log("INFO", f"FileBrowser is listening on {LISTEN}:{PORT}")
-        try:
-            # FileBrowser registers routes under http.baseURL, so do not strip
-            # the /filebrowser-quantum prefix.
-            return serve_proxy(
-                SOCKET_PATH,
-                LISTEN,
-                PORT,
-                strip_prefix="",
-                socket_mode=0o660,
-            )
-        finally:
-            shutdown()
-            if os.path.lexists(SOCKET_PATH):
-                try:
-                    os.unlink(SOCKET_PATH)
-                except OSError:
-                    pass
-    except Exception:
+        # The TOS platform strips /v2/proxy/<appid> before forwarding to the
+        # socket. FileBrowser registers every route under http.baseURL, so the
+        # proxy restores that prefix instead of stripping it.
+        return serve_proxy(
+            SOCKET_PATH,
+            LISTEN,
+            PORT,
+            strip_prefix="",
+            socket_mode=0o660,
+            path_prefix=PROXY_PREFIX,
+            path_aliases=(f"/{APP_ID}",),
+            stop_event=stop_event,
+        )
+    finally:
         shutdown()
-        raise
+        if os.path.lexists(SOCKET_PATH):
+            try:
+                os.unlink(SOCKET_PATH)
+            except OSError:
+                pass
 
 
 if __name__ == "__main__":

@@ -1,45 +1,141 @@
-# Privacy Policy — FileBrowser Quantum for TOS 7
+# Privacy Policy - FileBrowser Quantum for TOS 7
 
-This policy describes how the TOS 7 packaging of **FileBrowser Quantum** (`filebrowser-quantum`) handles information. The application is installed and runs on the user's own TerraMaster NAS. The packager of this TOS wrapper does not operate a cloud account service for the app and does not receive a copy of data created by a local installation.
+This policy describes how the TerraMaster TOS 7 packaging of **FileBrowser
+Quantum** (`filebrowser-quantum`, package version 2.0.4) handles information.
+The application is installed and runs entirely on the user's own TerraMaster
+NAS. The wrapper publisher does not operate a cloud account service for this
+application and does not receive a copy of files, credentials, logs, or usage
+data created by a local installation.
 
-## Who provides the application
+## Provider and scope
 
-This package is a TOS 7 wrapper around official [FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser) (Apache-2.0). The wrapper is published by the independent publisher **qishiyi** through [github.com/642671/tos-filebrowser](https://github.com/642671/tos-filebrowser). This is not a TerraMaster official application. No company legal department or formal postal privacy contact is claimed here. Questions about this wrapper's policy can be opened as issues on the wrapper repository.
+This package is an independent TOS 7 wrapper around the official
+[FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser) project
+(Apache-2.0). The wrapper is published by the independent publisher
+**qishiyi** through
+[github.com/642671/tos-filebrowser](https://github.com/642671/tos-filebrowser).
+It is not a TerraMaster official application and is not endorsed by
+TerraMaster.
 
-## What the application does
+This policy covers the TOS wrapper: its configuration, systemd unit, Unix
+socket proxy, launcher page, lifecycle scripts, and documentation. The
+upstream FileBrowser Quantum software is a separate project with its own
+documentation. The wrapper does not add analytics, advertising, telemetry, or
+cloud synchronization.
 
-FileBrowser Quantum lets a NAS administrator browse, preview, and share files through a TOS window. The official binary listens only on the NAS loopback interface. A local proxy exposes it to the TOS portal through `/var/api/filebrowser-quantum.sock`.
+## Information processed on the NAS
 
-## Information stored on this NAS
+The application processes only the information needed to provide local file
+browsing and sharing:
 
-The wrapper and FileBrowser Quantum may store application data only on this NAS, typically under `/usr/local/filebrowser-quantum/data` and `/usr/local/filebrowser-quantum/logs`, including:
+- **Account data.** The FileBrowser administrator account and any additional
+  users created by the administrator, including usernames, password hashes,
+  roles, and permissions. Passwords are handled by the upstream application;
+  the wrapper does not transmit them.
+- **Application configuration.** File sources, permissions, sharing options,
+  server settings, and the first-run administrator record.
+- **File and folder data.** Names, paths, sizes, timestamps, previews, and
+  content of files that the administrator explicitly adds as FileBrowser
+  sources. The application can read, modify, create, and delete files in
+  those sources when the signed-in account has permission.
+- **Application state.** The FileBrowser database, cache, temporary upload
+  files, generated previews, and the first-run credential file
+  `INITIAL_ADMIN.txt`.
+- **Operational logs.** Service output and installation diagnostics under
+  `/usr/local/filebrowser-quantum/logs`, used to operate and troubleshoot the
+  local service.
 
-- application configuration and the FileBrowser database
-- application cache files
-- the first-run administrator password file `INITIAL_ADMIN.txt`, until you change or delete it
-- files placed in the application's own default folder `/usr/local/filebrowser-quantum/data/files`
-- service logs and install diagnostic files
+## Purposes and legal basis
 
-The application does not require you to create an account with the wrapper publisher. Sign-in accounts created inside FileBrowser are stored in the application's database on this NAS.
+The information is processed solely to run the application on the user's NAS:
+authenticating local users, displaying and managing the configured file
+sources, applying permissions, producing previews, creating shares requested
+by the user, maintaining the local database and cache, and diagnosing service
+or installation failures. The wrapper publisher does not use this information
+for profiling, advertising, marketing, or any purpose unrelated to the local
+application.
 
-## Access to NAS volumes
+## Where data is stored
 
-On first start, if common TOS volume paths such as `/mnt/md0` or `/Volume1` exist, they may be added as additional file sources in the first-run configuration only. The application can then read and write files in the sources the administrator enables. Those volume files remain the user's NAS data. This wrapper does not copy them off the NAS to the publisher.
+Application data is stored locally on the NAS, typically under
+`/usr/local/filebrowser-quantum/data` and
+`/usr/local/filebrowser-quantum/logs`. User files remain in the sources chosen
+by the administrator, such as `/Volume1` or other mounted volumes. The wrapper
+does not create a publisher-operated copy, backup, or cloud mirror of these
+files.
 
-## What is not sent to the publisher
+## Network activity and sharing
 
-This packaging does not send file contents, share links, credentials, or logs to the publisher, to TerraMaster, or to a publisher analytics service. Share links created in FileBrowser are provided by the application running on this NAS.
+The packaged FileBrowser Quantum binary listens only on the NAS loopback
+interface. The TOS wrapper exposes it to the TOS portal through the local Unix
+socket `/var/api/filebrowser-quantum.sock`. The wrapper itself does not send
+file contents, credentials, logs, or usage statistics to the publisher or to
+TerraMaster.
 
-## Access on this NAS
+FileBrowser features selected by the administrator may create user-initiated
+shares or connect to services configured by the administrator. Those actions
+are controlled by the administrator and the upstream application, not by the
+wrapper publisher. Anyone who can open the application and authenticate with a
+FileBrowser account can access the sources and operations allowed for that
+account.
 
-Anyone who can open the application and authenticate with a FileBrowser account can use the permissions granted to that account.
+## Retention and deletion
 
-## Retention and uninstall
+Configuration, accounts, the database, cache, previews, logs, and
+`INITIAL_ADMIN.txt` remain on the NAS until the user changes or deletes them,
+or until the application is uninstalled. Uninstalling the package stops and
+disables the service and removes the wrapper's own directory
+`/usr/local/filebrowser-quantum`, including its configuration, database,
+cache, logs, and first-run credential file, together with the systemd unit,
+the Unix socket, and the service user.
 
-Application configuration, the FileBrowser database, cache, and `INITIAL_ADMIN.txt` remain until the user changes them or uninstalls the application. Uninstalling the package stops the service and removes this application's own configuration, database, cache, logs, initial password file, Unix socket, systemd unit, and service user under `/usr/local/filebrowser-quantum`.
+Uninstall does **not** delete user files stored on NAS volumes such as
+`/Volume1`, `/Volume2`, or legacy `/mnt` mounts. Backups, snapshots, or copies
+created by the user or by other NAS features are outside this package and are
+not removed by it.
 
-Uninstall does **not** delete user files that live on NAS volume mounts such as `/mnt/md0` or `/Volume1`. Only this application's own directory and service identity are removed.
+## User rights and choices
 
-## Changes
+The NAS administrator can inspect, export, correct, or delete application data
+through the TOS file manager, the FileBrowser administration interface, or by
+uninstalling the package. Because the publisher does not receive this data,
+there is no publisher-side copy to access, correct, or erase. Requests about
+the wrapper can be raised through the repository issue tracker listed below.
 
-The current policy for a given package version is the copy shipped in that package at `/usr/local/filebrowser-quantum/docs/PRIVACY.md`, also published at [docs/PRIVACY.md](https://github.com/642671/tos-filebrowser/blob/main/docs/PRIVACY.md).
+## Security
+
+The service runs as the dedicated non-root user `filebrowser-quantum` with a
+restricted systemd sandbox. Application data is kept under the application
+directory, and the local socket is used instead of publishing a LAN port. The
+administrator is responsible for strong account passwords, network exposure,
+TOS access controls, volume permissions, and backups. The first-run password in
+`INITIAL_ADMIN.txt` should be changed immediately after the first login, and
+the file should be removed once it is no longer needed.
+
+## International transfers
+
+The wrapper does not transfer personal data internationally. All processing
+described here occurs on the user's NAS. If the administrator configures an
+upstream feature or external service that transmits data, that transfer is
+chosen and controlled by the administrator.
+
+## Children
+
+This application is intended for NAS administration and general file
+management. It is not directed to children, and the publisher does not
+knowingly collect information from children.
+
+## Changes to this policy
+
+The policy applicable to a package version is the copy shipped in that package
+at `/usr/local/filebrowser-quantum/docs/PRIVACY.md` and published at
+[docs/PRIVACY.md](https://github.com/642671/tos-filebrowser/blob/main/docs/PRIVACY.md).
+Material changes are made in a new package version and noted in its release
+notes.
+
+## Contact
+
+Questions or concerns about this wrapper's privacy practices can be raised at
+[github.com/642671/tos-filebrowser/issues](https://github.com/642671/tos-filebrowser/issues).
+Do not include passwords, private file contents, or other sensitive data in a
+public issue.

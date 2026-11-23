@@ -1,97 +1,97 @@
 [zh-cn]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "在浏览器里管理 NAS 文件，支持预览与分享。本应用是官方 FileBrowser Quantum 的 TOS 套壳。"
-release_note = "2.0.3：按审核意见整改。仅更新 TOS 套壳，上游仍是官方 FileBrowser Quantum v2.0.2-stable 二进制。包内增加隐私政策，卸载时清理本应用配置、数据和服务用户，不会删除 NAS 数据盘上的用户文件。"
+descript = "在浏览器里管理 NAS 文件，支持预览与分享。本应用是官方 FileBrowser Quantum v2.0.2-stable 的 TOS 7 套壳（软件包 2.0.4）。"
+release_note = "2.0.4：修复上架审核阻断项。补齐 webui.bz2 前端资源并由安装脚本解压，修正 TOS 门户 /v2/proxy 路径，放开 /Volume1 等卷的可写权限，去掉 /mnt 硬依赖并实现优雅停止；同时完善隐私政策、帮助链接和构建来源说明。上游仍为官方 FileBrowser Quantum v2.0.2-stable。"
 important = "本应用是官方 FileBrowser Quantum（Apache-2.0）的 TOS 套壳，不会声称拥有上游著作权。首次启动的管理员账号与密码写在 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt，请登录后立即修改。"
 
 [zh-hk]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "在瀏覽器裡管理 NAS 檔案，支援預覽與分享。本應用是官方 FileBrowser Quantum 的 TOS 套殼。"
-release_note = "2.0.3：按審核意見整改。只更新 TOS 套殼，上游仍是官方 FileBrowser Quantum v2.0.2-stable 二進位檔。套件內增加私隱政策，解除安裝時清理本應用配置、數據和服務用戶，不會刪除 NAS 資料碟上的用戶檔案。"
+descript = "在瀏覽器裡管理 NAS 檔案，支援預覽與分享。本應用是官方 FileBrowser Quantum v2.0.2-stable 的 TOS 7 套殼（套件 2.0.4）。"
+release_note = "2.0.4：修正上架審核阻斷項。補齊 webui.bz2 前端資源並由安裝腳本解壓，修正 TOS 入口 /v2/proxy 路徑，開放 /Volume1 等磁碟區的可寫權限，移除 /mnt 硬性依賴並實作優雅停止；同時完善私隱政策、說明連結和建置來源。上游仍為官方 FileBrowser Quantum v2.0.2-stable。"
 important = "本應用是官方 FileBrowser Quantum（Apache-2.0）的 TOS 套殼，不會聲稱擁有上游著作權。首次啟動的管理員帳號與密碼寫在 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt，請登入後立即修改。"
 
 [en-us]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Manage NAS files in the browser with previews and sharing. This app wraps official FileBrowser Quantum for TOS."
-release_note = "2.0.3: Rectified per review comments. TOS wrapper revision only, still based on official FileBrowser Quantum v2.0.2-stable binaries. Add an in-package privacy policy and remove app data and the service user on uninstall, without deleting files on NAS volume mounts."
+descript = "Manage NAS files in the browser with previews and sharing. This is the TOS 7 wrapper of official FileBrowser Quantum v2.0.2-stable (package 2.0.4)."
+release_note = "2.0.4: Fixes the store review blockers. Ships the webui.bz2 frontend and extracts it from postinst, corrects the TOS portal /v2/proxy base path, grants write access to /Volume1 and other volumes, removes the hard /mnt requirement, and implements graceful shutdown. Also completes the privacy policy, help link and build provenance. Upstream remains official FileBrowser Quantum v2.0.2-stable."
 important = "This app is a TOS wrapper of official FileBrowser Quantum (Apache-2.0) and does not claim upstream copyright. The first-run admin password is stored in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; change it after login."
 
 [fr-fr]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Gerez les fichiers du NAS dans le navigateur, avec apercus et partage. Enveloppe TOS de FileBrowser Quantum officiel."
-release_note = "2.0.3: Rectified per review comments. Revision de l'enveloppe TOS uniquement, toujours basee sur les binaires officiels FileBrowser Quantum v2.0.2-stable. Ajoute une politique de confidentialite et supprime les donnees et l'utilisateur de service a la desinstallation, sans effacer les fichiers des volumes NAS."
+descript = "Gerez les fichiers du NAS dans le navigateur, avec apercus et partage. Enveloppe TOS 7 de FileBrowser Quantum officiel v2.0.2-stable (paquet 2.0.4)."
+release_note = "2.0.4 : corrige les blocages de la revue. Ajoute le frontend webui.bz2 extrait par postinst, corrige le chemin /v2/proxy du portail TOS, autorise l'ecriture sur /Volume1 et les autres volumes, supprime la dependance obligatoire a /mnt et implemente un arret propre. Complete aussi la politique de confidentialite, le lien d'aide et la provenance de compilation. L'amont reste FileBrowser Quantum officiel v2.0.2-stable."
 important = "Cette application est une enveloppe TOS de FileBrowser Quantum officiel (Apache-2.0). Le mot de passe admin initial est dans /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt ; changez-le apres connexion."
 
 [de-de]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "NAS-Dateien im Browser verwalten, inkl. Vorschau und Freigabe. TOS-Huelle des offiziellen FileBrowser Quantum."
-release_note = "2.0.3: Rectified per review comments. Nur TOS-Huelle aktualisiert, weiterhin offizielle FileBrowser-Quantum-v2.0.2-stable-Binaries. Fuegt eine Datenschutzrichtlinie hinzu und entfernt App-Daten und den Dienstbenutzer bei der Deinstallation, ohne Dateien auf NAS-Volumes zu loeschen."
+descript = "NAS-Dateien im Browser verwalten, inkl. Vorschau und Freigabe. TOS-7-Huelle des offiziellen FileBrowser Quantum v2.0.2-stable (Paket 2.0.4)."
+release_note = "2.0.4: Behebt die Store-Pruefblocker. Liefert das webui.bz2-Frontend mit und entpackt es in postinst, korrigiert den /v2/proxy-Basispfad des TOS-Portals, erlaubt Schreibzugriff auf /Volume1 und weitere Volumes, entfernt die harte /mnt-Abhaengigkeit und implementiert sauberes Beenden. Ergaenzt Datenschutzrichtlinie, Hilfelink und Build-Herkunft. Upstream bleibt offizielles FileBrowser Quantum v2.0.2-stable."
 important = "Diese App ist eine TOS-Huelle fuer das offizielle FileBrowser Quantum (Apache-2.0). Das erstmalige Admin-Passwort steht in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; bitte nach dem Login aendern."
 
 [it-it]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Gestisci i file del NAS nel browser, con anteprime e condivisioni. Wrapper TOS di FileBrowser Quantum ufficiale."
-release_note = "2.0.3: Rectified per review comments. Solo revisione del wrapper TOS, ancora basata sui binari ufficiali FileBrowser Quantum v2.0.2-stable. Aggiunge un'informativa sulla privacy e rimuove dati e utente di servizio in disinstallazione, senza cancellare i file sui volumi NAS."
+descript = "Gestisci i file del NAS nel browser, con anteprime e condivisioni. Wrapper TOS 7 di FileBrowser Quantum ufficiale v2.0.2-stable (pacchetto 2.0.4)."
+release_note = "2.0.4: risolve i blocchi della revisione. Include il frontend webui.bz2 ed e estratto da postinst, corregge il percorso /v2/proxy del portale TOS, consente la scrittura su /Volume1 e altri volumi, rimuove la dipendenza obbligatoria da /mnt e implementa l'arresto pulito. Completa anche informativa privacy, link di aiuto e provenienza della build. L'upstream resta FileBrowser Quantum ufficiale v2.0.2-stable."
 important = "Questa app e un wrapper TOS di FileBrowser Quantum ufficiale (Apache-2.0). La password admin iniziale e in /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; cambiala dopo l'accesso."
 
 [es-es]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Administre los archivos del NAS en el navegador, con vistas previas y uso compartido. Envoltorio TOS de FileBrowser Quantum oficial."
-release_note = "2.0.3: Rectified per review comments. Solo revision del envoltorio TOS, sigue basada en los binarios oficiales de FileBrowser Quantum v2.0.2-stable. Anade una politica de privacidad y elimina datos y el usuario de servicio al desinstalar, sin borrar archivos en los volumenes del NAS."
+descript = "Administre los archivos del NAS en el navegador, con vistas previas y uso compartido. Envoltorio TOS 7 de FileBrowser Quantum oficial v2.0.2-stable (paquete 2.0.4)."
+release_note = "2.0.4: corrige los bloqueos de la revision. Incluye el frontend webui.bz2 y lo extrae en postinst, corrige la ruta base /v2/proxy del portal TOS, permite escritura en /Volume1 y otros volumenes, elimina la dependencia obligatoria de /mnt e implementa un cierre ordenado. Tambien completa la politica de privacidad, el enlace de ayuda y la procedencia de compilacion. El upstream sigue siendo FileBrowser Quantum oficial v2.0.2-stable."
 important = "Esta aplicacion es un envoltorio TOS de FileBrowser Quantum oficial (Apache-2.0). La contrasena admin inicial esta en /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; cambiela tras iniciar sesion."
 
 [hu-hu]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "NAS fajlok kezelese bongeszoben, elonezettel es megosztassal. A hivatalos FileBrowser Quantum TOS burkolasa."
-release_note = "2.0.3: Rectified per review comments. Csak a TOS burkolas valtozott, tovabbra is a hivatalos FileBrowser Quantum v2.0.2-stable binarisokra epul. Adatvedelmi iranyelv a csomagban, eltavolitaskor torli az alkalmazasadatait es a szolgaltatasfelhasznalot, a NAS kotetek fajljait nem torli."
+descript = "NAS-fajlok kezelese a bongeszoben elonezettel es megosztassal. A hivatalos FileBrowser Quantum v2.0.2-stable TOS 7 burkolata (2.0.4 csomag)."
+release_note = "2.0.4: javitja az aruhazi ellenorzes blokkolo elemeit. Belekerul a webui.bz2 frontend, amelyet a postinst kicsomagol; javitja a TOS portal /v2/proxy alaputvonalat, irasjogot ad a /Volume1 es tovabbi kotetekhez, eltavolitja a kotelezo /mnt fuggoseget es szabalyos leallitast valosit meg. Kiegesziti az adatvedelmi tajekoztatot, a sugo linket es a build eredetet. Az upstream tovabbra is a hivatalos FileBrowser Quantum v2.0.2-stable."
 important = "Ez az alkalmazas a hivatalos FileBrowser Quantum (Apache-2.0) TOS burkolasa. Az elso admin jelszo a /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt fajlban van; bejelentkezes utan valtoztassa meg."
 
 [ja-jp]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "ブラウザーで NAS のファイルを管理し、プレビューと共有ができます。公式 FileBrowser Quantum の TOS ラッパーです。"
-release_note = "2.0.3：Rectified per review comments。TOS ラッパーのみの改訂で、上流は引き続き公式 FileBrowser Quantum v2.0.2-stable バイナリです。パッケージ内にプライバシーポリシーを追加し、アンインストール時に本アプリの設定・データ・サービスユーザーを削除します。NAS ボリューム上のユーザーファイルは削除しません。"
+descript = "ブラウザーで NAS のファイルを管理し、プレビューと共有ができます。公式 FileBrowser Quantum v2.0.2-stable の TOS 7 ラッパーです（パッケージ 2.0.4）。"
+release_note = "2.0.4：ストア審査の阻害項目を修正しました。webui.bz2 のフロントエンドを同梱して postinst で展開し、TOS ポータルの /v2/proxy ベースパスを修正、/Volume1 などのボリュームへの書き込みを許可、/mnt への必須依存を廃止し、正常停止を実装しました。プライバシーポリシー、ヘルプリンク、ビルド来歴も整備しています。上流は公式 FileBrowser Quantum v2.0.2-stable のままです。"
 important = "本アプリは公式 FileBrowser Quantum（Apache-2.0）の TOS ラッパーです。初回管理者パスワードは /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt に保存されます。ログイン後に変更してください。"
 
 [ko-kr]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "브라우저에서 NAS 파일을 관리하고 미리보기와 공유를 제공합니다. 공식 FileBrowser Quantum의 TOS 래퍼입니다."
-release_note = "2.0.3: Rectified per review comments. TOS 래퍼만 개정하며 업스트림은 공식 FileBrowser Quantum v2.0.2-stable 바이너리입니다. 패키지에 개인정보 처리방침을 넣고, 제거 시 앱 데이터와 서비스 사용자를 정리하며 NAS 볼륨의 사용자 파일은 삭제하지 않습니다."
+descript = "브라우저에서 NAS 파일을 관리하고 미리보기와 공유를 제공합니다. 공식 FileBrowser Quantum v2.0.2-stable의 TOS 7 래퍼입니다(패키지 2.0.4)."
+release_note = "2.0.4: 스토어 심사 차단 항목을 수정했습니다. webui.bz2 프런트엔드를 포함하고 postinst에서 압축을 풀며, TOS 포털의 /v2/proxy 기본 경로를 바로잡고, /Volume1 등 볼륨에 쓰기 권한을 부여하며, /mnt 필수 의존성을 제거하고 정상 종료를 구현했습니다. 개인정보 처리방침, 도움말 링크, 빌드 출처도 보완했습니다. 업스트림은 공식 FileBrowser Quantum v2.0.2-stable입니다."
 important = "이 앱은 공식 FileBrowser Quantum(Apache-2.0)의 TOS 래퍼입니다. 최초 관리자 비밀번호는 /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt 에 저장되며, 로그인 후 변경하세요."
 
 [pl-pl]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Zarzadzaj plikami NAS w przegladarce, z podgladem i udostepnianiem. Opakowanie TOS oficjalnego FileBrowser Quantum."
-release_note = "2.0.3: Rectified per review comments. Tylko rewizja opakowania TOS, nadal oparte na oficjalnych binariach FileBrowser Quantum v2.0.2-stable. Dodaje polityke prywatnosci i usuwa dane oraz uzytkownika uslugi przy odinstalowaniu, bez usuwania plikow na wolumenach NAS."
+descript = "Zarzadzaj plikami NAS w przegladarce, z podgladem i udostepnianiem. Opakowanie TOS 7 oficjalnego FileBrowser Quantum v2.0.2-stable (pakiet 2.0.4)."
+release_note = "2.0.4: naprawia blokady z przegladu sklepu. Dolacza frontend webui.bz2 i rozpakowuje go w postinst, poprawia bazowa sciezke /v2/proxy portalu TOS, przyznaje prawo zapisu do /Volume1 i innych wolumenow, usuwa wymagana zaleznosc od /mnt i wdraza poprawne zatrzymanie. Uzupelnia polityke prywatnosci, link pomocy i pochodzenie kompilacji. Upstream pozostaje oficjalny FileBrowser Quantum v2.0.2-stable."
 important = "Ta aplikacja to opakowanie TOS oficjalnego FileBrowser Quantum (Apache-2.0). Haslo admina z pierwszej instalacji jest w /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; zmien je po zalogowaniu."
 
 [ru-ru]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Управляйте файлами NAS в браузере, с предпросмотром и общим доступом. TOS-обёртка официального FileBrowser Quantum."
-release_note = "2.0.3: Rectified per review comments. Обновлена только TOS-обёртка, по-прежнему используются официальные бинарники FileBrowser Quantum v2.0.2-stable. В пакет добавлена политика конфиденциальности, при удалении очищаются данные и служебный пользователь, файлы на томах NAS не удаляются."
+descript = "Управляйте файлами NAS в браузере с предпросмотром и общим доступом. Оболочка TOS 7 для официального FileBrowser Quantum v2.0.2-stable (пакет 2.0.4)."
+release_note = "2.0.4: устранены блокирующие замечания магазина. В пакет добавлен фронтенд webui.bz2 и его распаковка в postinst, исправлен базовый путь /v2/proxy портала TOS, разрешена запись в /Volume1 и другие тома, убрана обязательная зависимость от /mnt и реализовано корректное завершение. Также дополнены политика конфиденциальности, ссылка на справку и сведения о сборке. Верхний уровень по-прежнему официальный FileBrowser Quantum v2.0.2-stable."
 important = "Это TOS-обёртка официального FileBrowser Quantum (Apache-2.0). Пароль администратора при первом запуске записан в /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; смените его после входа."
 
 [tr-tr]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "NAS dosyalarini tarayicida onizleme ve paylasimla yonetir. Resmi FileBrowser Quantum icin TOS sarmalayicisi."
-release_note = "2.0.3: Rectified per review comments. Yalniz TOS sarmalayici revizyonudur, resmi FileBrowser Quantum v2.0.2-stable ikililerine dayanir. Pakete gizlilik politikasi ekler, kaldirmada uygulama verisini ve hizmet kullanicisini siler, NAS birimlerindeki dosyalari silmez."
+descript = "NAS dosyalarini tarayicida onizleme ve paylasimla yonetin. Resmi FileBrowser Quantum v2.0.2-stable icin TOS 7 sarmalayicisi (paket 2.0.4)."
+release_note = "2.0.4: magaza incelemesindeki engelleri giderir. webui.bz2 arayuzunu paketler ve postinst ile acar, TOS portalinin /v2/proxy temel yolunu duzeltir, /Volume1 ve diger birimlere yazma izni verir, zorunlu /mnt bagimliligini kaldirir ve duzgun kapatmayi uygular. Gizlilik politikasi, yardim baglantisi ve derleme kaynagi da tamamlanir. Ust kaynak resmi FileBrowser Quantum v2.0.2-stable olarak kalir."
 important = "Bu uygulama resmi FileBrowser Quantum (Apache-2.0) icin bir TOS sarmalayicisidir. Ilk yonetici parolasi /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt dosyasindadir; giristen sonra degistirin."
 
 [pt-pt]
 name = "FileBrowser Quantum"
 auth = "qishiyi"
-descript = "Gira os ficheiros do NAS no navegador, com pre-visualizacao e partilha. Invólucro TOS do FileBrowser Quantum oficial."
-release_note = "2.0.3: Rectified per review comments. Apenas revisao do invólucro TOS, ainda baseada nos binarios oficiais do FileBrowser Quantum v2.0.2-stable. Adiciona uma politica de privacidade e remove os dados e o utilizador de servico na desinstalacao, sem apagar ficheiros nos volumes do NAS."
-important = "Esta aplicacao e um invólucro TOS do FileBrowser Quantum oficial (Apache-2.0). A palavra-passe admin inicial esta em /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; altere-a apos o login."
+descript = "Gira os ficheiros do NAS no navegador, com pre-visualizacao e partilha. Involucro TOS 7 do FileBrowser Quantum oficial v2.0.2-stable (pacote 2.0.4)."
+release_note = "2.0.4: corrige os bloqueios da revisao. Inclui o frontend webui.bz2 e extrai-o no postinst, corrige o caminho base /v2/proxy do portal TOS, permite escrita em /Volume1 e outros volumes, remove a dependencia obrigatoria de /mnt e implementa paragem graciosa. Completa tambem a politica de privacidade, a ligacao de ajuda e a proveniencia da compilacao. O upstream continua a ser o FileBrowser Quantum oficial v2.0.2-stable."
+important = "Esta aplicacao e um involucro TOS do FileBrowser Quantum oficial (Apache-2.0). A palavra-passe admin inicial esta em /usr/local/filebrowser-quantum/data/INITIAL_ADMIN.txt; altere-a apos o login."

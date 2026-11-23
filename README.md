@@ -12,7 +12,7 @@ proxy, systemd units, and a default configuration.
 
 - Upstream: https://github.com/gtsteffaniak/filebrowser
 - Upstream tag: `v2.0.2-stable`
-- TOS / Debian package version: `2.0.3` (wrapper revision). The packaged
+- TOS / Debian package version: `2.0.4` (wrapper revision). The packaged
   software is still exactly upstream `v2.0.2-stable`. The `-stable` suffix is
   not a Debian version component.
 - Corresponding source: https://github.com/gtsteffaniak/filebrowser/archive/refs/tags/v2.0.2-stable.tar.gz
@@ -29,6 +29,14 @@ port.
 
 The packaged application id is `filebrowser-quantum`. Separate packages are
 built for `x86_64` and `aarch64`.
+
+The package ships the TOS launcher page in `webui.bz2`. `postinst` removes any
+previous extraction and unpacks the exact archive from the current package into
+`/usr/local/filebrowser-quantum/webui`, so upgrades cannot leave a stale UI
+behind. The launcher embeds the upstream WebUI through the TOS route
+`/v2/proxy/filebrowser-quantum/`; the local proxy restores that prefix before
+forwarding to the upstream server, whose `http.baseURL` is set to the same
+path.
 
 On first start:
 
@@ -64,11 +72,17 @@ runs `dpkg-deb --info` and `dpkg-deb --contents`.
 
 Output:
 
-- `apps/tos7/dist/filebrowser-quantum_2.0.3_x86_64.deb`
-- `apps/tos7/dist/filebrowser-quantum_2.0.3_aarch64.deb`
+- `apps/tos7/dist/filebrowser-quantum_2.0.4_x86_64.deb`
+- `apps/tos7/dist/filebrowser-quantum_2.0.4_aarch64.deb`
 
 Build directories, downloaded upstream binaries, and `.deb` files are gitignored
 and must not be committed.
+
+The builder verifies the packaged `webui.bz2` contents, the version query
+strings, the systemd sandbox paths, the lifecycle scripts, and the recorded
+upstream build provenance before writing the `.sha256` sidecar. See
+[`apps/tos7/BUILD_PROVENANCE.md`](apps/tos7/BUILD_PROVENANCE.md) for the
+upstream commit, release workflow, license, and downloaded asset hashes.
 
 ## Upstream assets (v2.0.2-stable)
 
@@ -85,4 +99,13 @@ redistributing.
 
 ## Privacy and uninstall
 
-The privacy policy is published at [docs/PRIVACY.md](docs/PRIVACY.md) and is also shipped inside the package. Uninstalling the application removes `/usr/local/filebrowser-quantum` (including `data/INITIAL_ADMIN.txt`, the application database, and cache), the service user, the systemd unit, and `/var/api/filebrowser-quantum.sock`. It does **not** delete user files on NAS volume mounts such as `/mnt/md0` or `/Volume1`.
+The privacy policy is published at [docs/PRIVACY.md](docs/PRIVACY.md) and is also shipped inside the package. The systemd unit keeps `/usr/local/filebrowser-quantum/data`, `/usr/local/filebrowser-quantum/logs`, and `/var/api` writable, and grants write access to `/Volume1` and other TOS volumes when they exist. Legacy `/mnt` is optional, so a missing path cannot prevent the service from starting with `226/NAMESPACE`.
+
+The service handles `SIGTERM` by stopping the proxy, terminating the upstream process with a bounded wait, cleaning up the socket, and exiting normally. It does not rely on `SIGKILL` for a normal stop or disable.
+
+TOS ships an `ffmpeg` build whose capability probe can take around 20 seconds on
+ARM hardware. The launcher therefore waits up to 90 seconds for the upstream
+listener on first start, and `postinst` uses the same readiness budget instead
+of reporting a false failure.
+
+Uninstalling the application removes `/usr/local/filebrowser-quantum` (including `data/INITIAL_ADMIN.txt`, the application database, cache, logs, and the extracted `webui` directory), the service user, the systemd unit, and `/var/api/filebrowser-quantum.sock`. It does **not** delete user files on NAS volume mounts such as `/mnt/md0` or `/Volume1`.
