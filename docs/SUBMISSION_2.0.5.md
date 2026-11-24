@@ -94,6 +94,14 @@ Create the x86_64 2.0.5 version, poll the task, compare the parse result with
 the hash and release notes below, and only then confirm. The aarch64 payload is
 prepared for later, after ARM hardware verification.
 
+Submission result: task `c1ff18bc-b2e2-454c-b3e1-de48a982f284` passed on the
+first poll. Parse Result: name `FileBrowser Quantum`, version `2.0.5`,
+platform `x86_64`, size 27,411,222, SHA-256
+`4d20d046e49c0526a232d484b82b4e5f4f0feaa32a3808740e60578e37bf27c4`, complete
+release notes. Confirmed Version `3d74c6f9-85b9-418b-937b-42782ce1dfa4`,
+status `0` (reviewing). App record `73091c21-e287-49b9-aa81-947339dd6411`
+now reports `current_version=2.0.5`, `versions_status=1`.
+
 ## GitHub Release body
 
 FileBrowser Quantum 2.0.5 for TOS 7 (wrapper revision; upstream remains
