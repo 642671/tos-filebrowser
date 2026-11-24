@@ -5,8 +5,43 @@ APP_ID="filebrowser-quantum"
 APP_USER="filebrowser-quantum"
 SYSTEM_ID="filebrowserquantum-system"
 APP_DIR="/usr/local/${APP_ID}"
+USR_WWW_DIR="/usr/www/${APP_ID}"
 UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
+WANTS_LINK="/etc/systemd/system/multi-user.target.wants/${SYSTEM_ID}.service"
 SOCKET_PATH="/var/api/${APP_ID}.sock"
+NGINX_CONF_DST="/etc/nginx/conf.d/${APP_ID}.conf"
+
+remove_tree() {
+    target="$1"
+    if [ ! -e "${target}" ] && [ ! -L "${target}" ]; then
+        return 0
+    fi
+    rm -rf "${target}" 2>/dev/null || true
+    if [ -e "${target}" ]; then
+        # A busy bind mount can refuse removal of the directory itself.
+        # Empty it so no application data or configuration is left behind.
+        find "${target}" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+        rmdir "${target}" 2>/dev/null || true
+    fi
+}
+
+remove_link_and_owned_target() {
+    link="$1"
+    if [ -L "${link}" ]; then
+        target="$(readlink -f "${link}" 2>/dev/null || true)"
+        case "${target}" in
+            /Volume*/@apps/"${APP_ID}"|/Volume*/@apps/"${APP_ID}"/*)
+                remove_tree "${target}"
+                ;;
+            /mnt/*/@apps/"${APP_ID}"|/mnt/*/@apps/"${APP_ID}"/*)
+                remove_tree "${target}"
+                ;;
+        esac
+        rm -f "${link}" 2>/dev/null || true
+    elif [ -e "${link}" ]; then
+        remove_tree "${link}"
+    fi
+}
 
 if [ -d /run/systemd/system ]; then
     systemctl stop "${SYSTEM_ID}.service" 2>/dev/null || true
@@ -15,19 +50,29 @@ if [ -d /run/systemd/system ]; then
 fi
 
 rm -f "${UNIT_DST}" 2>/dev/null || true
-rm -f "/etc/systemd/system/multi-user.target.wants/${SYSTEM_ID}.service" 2>/dev/null || true
-rm -f "/var/api/${APP_ID}.sock" 2>/dev/null || true
-
-if [ -d /run/systemd/system ]; then
-    systemctl daemon-reload || true
-fi
+rm -f "${WANTS_LINK}" 2>/dev/null || true
+rm -f "${SOCKET_PATH}" 2>/dev/null || true
+rm -f /var/api/filebrowser-quantum.sock 2>/dev/null || true
 
 case "$1" in
     remove|purge)
-        # Remove only this application's own files, socket, unit, and service
-        # user. Never delete shared directories such as /var/api, and never
-        # delete user volume data such as /mnt or /Volume1.
-        rm -rf "${APP_DIR}" 2>/dev/null || true
+        # FileBrowser data lives on the TOS application volume, normally
+        # /Volume1/@apps/<appid>, and /usr/local/<appid> is a platform-created
+        # symlink to it. Remove the resolved target, not only the symlink.
+        remove_link_and_owned_target "${APP_DIR}"
+        remove_link_and_owned_target "${USR_WWW_DIR}"
+
+        for target in /Volume*/@apps/"${APP_ID}" /mnt/*/@apps/"${APP_ID}"; do
+            remove_tree "${target}"
+        done
+
+        # Fallback for a platform that replaced the symlink with a real copy.
+        remove_tree "${APP_DIR}"
+        remove_tree "${USR_WWW_DIR}"
+
+        rm -f "${NGINX_CONF_DST}" 2>/dev/null || true
+
+        pkill -u "${APP_USER}" 2>/dev/null || true
         if getent passwd "${APP_USER}" >/dev/null 2>&1; then
             userdel "${APP_USER}" 2>/dev/null || true
         fi
@@ -42,5 +87,17 @@ case "$1" in
         fi
         ;;
 esac
+
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload || true
+fi
+
+if [ -f "${NGINX_CONF_DST}" ]; then
+    :
+elif command -v nginx >/dev/null 2>&1; then
+    if nginx -t >/dev/null 2>&1; then
+        systemctl reload nginx 2>/dev/null || nginx -s reload 2>/dev/null || true
+    fi
+fi
 
 exit 0

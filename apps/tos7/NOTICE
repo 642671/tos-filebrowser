@@ -10,7 +10,7 @@ Upstream project
 ----------------
 - Name: FileBrowser Quantum
 - Repository: https://github.com/gtsteffaniak/filebrowser
-- Version packaged: v2.0.2-stable (TOS wrapper package version 2.0.4)
+- Version packaged: v2.0.2-stable (TOS wrapper package version 2.0.5)
 - Official Linux binaries used unchanged:
   - https://github.com/gtsteffaniak/filebrowser/releases/download/v2.0.2-stable/linux-amd64-filebrowser
   - https://github.com/gtsteffaniak/filebrowser/releases/download/v2.0.2-stable/linux-arm64-filebrowser

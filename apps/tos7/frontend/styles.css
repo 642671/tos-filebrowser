@@ -89,3 +89,14 @@ body {
     color: #82b1ff;
   }
 }
+
+.error button {
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 6px;
+  background: #1976d2;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

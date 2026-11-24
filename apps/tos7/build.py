@@ -26,13 +26,17 @@ ROOT = Path(__file__).resolve().parent
 APP_ID = "filebrowser-quantum"
 APP_USER = "filebrowser-quantum"
 SYSTEM_ID = "filebrowserquantum-system"
-PACKAGE_VERSION = "2.0.4"
+PACKAGE_VERSION = "2.0.5"
 UPSTREAM_TAG = "v2.0.2-stable"
 UPSTREAM_BIN_NAME = "filebrowser"
 DEFAULT_CONF_NAME = "config.yaml"
 FRONTEND_DIR = ROOT / "frontend"
 WEBUI_ARCHIVE_NAME = "webui.bz2"
+APP_BASE_PATH = f"/{APP_ID}/ui"
 PROXY_PREFIX = f"/v2/proxy/{APP_ID}"
+NGINX_CONF_NAME = f"{APP_ID}.conf"
+SBOM_NAME = "SBOM.spdx.json"
+THIRD_PARTY_NAME = "THIRD_PARTY.md"
 PLATFORM_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
 EXECUTABLE_NAMES = {
     "filebrowser-quantum-service",
@@ -310,6 +314,119 @@ def make_webui_archive(version: str) -> bytes:
     )
 
 
+def make_sbom(version: str) -> bytes:
+    """Create a deterministic SPDX 2.3 document for the wrapper and binary."""
+    files = []
+    relationships = [
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relationshipType": "DESCRIBES",
+            "relatedSpdxElement": "SPDXRef-Package-TOSWrapper",
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relationshipType": "DESCRIBES",
+            "relatedSpdxElement": "SPDXRef-Package-FileBrowserQuantum",
+        },
+    ]
+    for platform, spec in UPSTREAM.items():
+        file_id = "SPDXRef-File-" + platform.replace("_", "-")
+        asset = Path(spec["url"]).name
+        files.append(
+            {
+                "SPDXID": file_id,
+                "fileName": asset,
+                "checksums": [
+                    {"algorithm": "SHA256", "checksumValue": spec["sha256"]}
+                ],
+                "licenseConcluded": "Apache-2.0",
+                "licenseInfoInFiles": ["Apache-2.0"],
+                "copyrightText": "Copyright (c) FileBrowser Quantum contributors",
+                "comment": (
+                    f"Official upstream release asset for {platform}, packaged "
+                    "unchanged at /usr/local/filebrowser-quantum/bin/filebrowser. "
+                    "UPX compression is applied by the upstream release workflow."
+                ),
+            }
+        )
+        relationships.append(
+            {
+                "spdxElementId": "SPDXRef-Package-FileBrowserQuantum",
+                "relationshipType": "CONTAINS",
+                "relatedSpdxElement": file_id,
+            }
+        )
+    document = {
+        "spdxVersion": "SPDX-2.3",
+        "dataLicense": "CC0-1.0",
+        "SPDXID": "SPDXRef-DOCUMENT",
+        "name": f"filebrowser-quantum-{version}",
+        "documentNamespace": (
+            "https://github.com/642671/tos-filebrowser/spdx/"
+            f"filebrowser-quantum-{version}"
+        ),
+        "creationInfo": {
+            "created": "2026-11-24T00:00:00Z",
+            "creators": [f"Tool: tos-packaging-builder-{version}"],
+            "comment": (
+                "SBOM for the TOS 7 wrapper and the bundled upstream "
+                "FileBrowser Quantum release executable."
+            ),
+        },
+        "packages": [
+            {
+                "SPDXID": "SPDXRef-Package-TOSWrapper",
+                "name": "filebrowser-quantum TOS 7 wrapper",
+                "versionInfo": version,
+                "supplier": "Organization: qishiyi",
+                "downloadLocation": "https://github.com/642671/tos-filebrowser",
+                "filesAnalyzed": False,
+                "licenseConcluded": "Apache-2.0",
+                "licenseDeclared": "Apache-2.0",
+                "copyrightText": "Copyright (c) 2026 qishiyi",
+                "externalRefs": [
+                    {
+                        "referenceCategory": "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            f"pkg:github/642671/tos-filebrowser@{version}"
+                        ),
+                    }
+                ],
+            },
+            {
+                "SPDXID": "SPDXRef-Package-FileBrowserQuantum",
+                "name": "FileBrowser Quantum",
+                "versionInfo": UPSTREAM_TAG,
+                "supplier": "Organization: gtsteffaniak",
+                "originator": "Organization: gtsteffaniak",
+                "downloadLocation": (
+                    "https://github.com/gtsteffaniak/filebrowser/releases/tag/"
+                    + UPSTREAM_TAG
+                ),
+                "filesAnalyzed": False,
+                "licenseConcluded": "Apache-2.0",
+                "licenseDeclared": "Apache-2.0",
+                "copyrightText": "Copyright (c) FileBrowser Quantum contributors",
+                "externalRefs": [
+                    {
+                        "referenceCategory": "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            "pkg:github/gtsteffaniak/filebrowser@" + UPSTREAM_TAG
+                        ),
+                    }
+                ],
+            },
+        ],
+        "files": files,
+        "relationships": relationships,
+    }
+    return (
+        json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8")
+
+
 def release_icon_mtime(version: str) -> int:
     version_offset = int("".join(re.findall(r"\d+", version)) or "0")
     return ICON_MTIME_EPOCH + version_offset
@@ -445,6 +562,10 @@ def verify_package(path: Path, platform: str, version: str) -> None:
             raise SystemExit("control version mismatch")
         if f"Architecture: {PLATFORM_ARCH[platform]}" not in control_text:
             raise SystemExit("control architecture mismatch")
+        if "Homepage: https://github.com/642671/tos-filebrowser" not in control_text:
+            raise SystemExit("control must declare the wrapper homepage")
+        if "X-Bundled-Binary:" not in control_text:
+            raise SystemExit("control must declare the bundled executable")
         for script_name in ("./postinst", "./prerm", "./postrm"):
             if not control.getmember(script_name).mode & 0o111:
                 raise SystemExit(f"{script_name} is not executable")
@@ -453,6 +574,13 @@ def verify_package(path: Path, platform: str, version: str) -> None:
             raise SystemExit("postinst must re-extract webui.bz2 on every install")
         if "index.html" not in postinst_text:
             raise SystemExit("postinst must verify the extracted WebUI index")
+        if 'NGINX_CONF_DST="/etc/nginx/conf.d/${APP_ID}.conf"' not in postinst_text:
+            raise SystemExit("postinst must deploy the nginx application route")
+        postrm_text = read_tar_text(control, "./postrm")
+        if "@apps" not in postrm_text or "readlink -f" not in postrm_text:
+            raise SystemExit("postrm must remove the resolved TOS app data directory")
+        if 'NGINX_CONF_DST="/etc/nginx/conf.d/${APP_ID}.conf"' not in postrm_text:
+            raise SystemExit("postrm must remove the nginx application route")
 
     with tarfile.open(
         fileobj=io.BytesIO(members["data.tar.gz"]), mode="r:gz"
@@ -471,7 +599,10 @@ def verify_package(path: Path, platform: str, version: str) -> None:
             f"./usr/local/{APP_ID}/init.d/{SYSTEM_ID}.service",
             f"./usr/local/{APP_ID}/conf/{DEFAULT_CONF_NAME}",
             f"./usr/local/{APP_ID}/docs/PRIVACY.md",
+            f"./usr/local/{APP_ID}/docs/{THIRD_PARTY_NAME}",
             f"./usr/local/{APP_ID}/BUILD_PROVENANCE.md",
+            f"./usr/local/{APP_ID}/{SBOM_NAME}",
+            f"./usr/local/{APP_ID}/nginx/{NGINX_CONF_NAME}",
             f"./usr/local/{APP_ID}/{WEBUI_ARCHIVE_NAME}",
         }
         missing = required - data_names
@@ -545,8 +676,31 @@ def verify_package(path: Path, platform: str, version: str) -> None:
         default_config = read_tar_text(
             data, f"./usr/local/{APP_ID}/conf/{DEFAULT_CONF_NAME}"
         )
-        if f'baseURL: "{PROXY_PREFIX}/"' not in default_config:
-            raise SystemExit("default config.yaml must use the TOS proxy baseURL")
+        if f'baseURL: "{APP_BASE_PATH}/"' not in default_config:
+            raise SystemExit("default config.yaml must use the app portal baseURL")
+        if "disableUpdateCheck: true" not in default_config:
+            raise SystemExit("default config.yaml must disable upstream update checks")
+
+        nginx_text = read_tar_text(
+            data, f"./usr/local/{APP_ID}/nginx/{NGINX_CONF_NAME}"
+        )
+        if f"location ^~ {APP_BASE_PATH}/" not in nginx_text:
+            raise SystemExit("nginx route must serve the application base path")
+        if "proxy_pass http://127.0.0.1:18742" not in nginx_text:
+            raise SystemExit("nginx route must proxy to the local FileBrowser port")
+        if "proxy_set_header Upgrade $http_upgrade" not in nginx_text:
+            raise SystemExit("nginx route must forward WebSocket upgrades")
+
+        sbom_text = read_tar_text(data, f"./usr/local/{APP_ID}/{SBOM_NAME}")
+        try:
+            sbom = json.loads(sbom_text)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"SBOM is not valid JSON: {exc}") from exc
+        if sbom.get("spdxVersion") != "SPDX-2.3":
+            raise SystemExit("SBOM must use SPDX-2.3")
+        for spec in UPSTREAM.values():
+            if spec["sha256"] not in sbom_text:
+                raise SystemExit("SBOM must record every upstream binary SHA-256")
 
         provenance = read_tar_text(
             data, f"./usr/local/{APP_ID}/BUILD_PROVENANCE.md"
@@ -573,8 +727,19 @@ def verify_package(path: Path, platform: str, version: str) -> None:
             index_text = read_tar_text(webui, "./index.html")
             if version not in index_text:
                 raise SystemExit("webui index.html does not reference the package version")
-            if f"{PROXY_PREFIX}/?v={version}" not in index_text:
-                raise SystemExit("webui index.html must point the iframe at the proxy prefix")
+            if f"{APP_BASE_PATH}/?v={version}" not in index_text:
+                raise SystemExit("webui index.html must point the iframe at the app path")
+            if "/v2/proxy/" in index_text:
+                raise SystemExit("webui index.html must not navigate the iframe through /v2/proxy/")
+            app_text = read_tar_text(webui, "./app.js")
+            if "/v2/proxy/" in app_text:
+                raise SystemExit("webui app.js must not use the platform proxy path")
+            if "frameRendered" not in app_text or "probeHealth" not in app_text:
+                raise SystemExit("webui app.js must verify health and real rendering")
+            if "frame.addEventListener(\"load\", function () {" not in app_text:
+                raise SystemExit("webui app.js must observe iframe load events")
+            if 'frame.addEventListener("load", function () {\n    window.setTimeout(markReady' in app_text:
+                raise SystemExit("webui app.js must not hide loading on iframe load alone")
 
 
 def run_dpkg_inspection(path: Path) -> None:
@@ -592,6 +757,10 @@ def run_dpkg_inspection(path: Path) -> None:
         raise SystemExit("dpkg-deb --contents is missing the upstream binary")
     if f"./usr/local/{APP_ID}/{WEBUI_ARCHIVE_NAME}" not in contents:
         raise SystemExit("dpkg-deb --contents is missing webui.bz2")
+    if f"./usr/local/{APP_ID}/nginx/{NGINX_CONF_NAME}" not in contents:
+        raise SystemExit("dpkg-deb --contents is missing the nginx route")
+    if f"./usr/local/{APP_ID}/{SBOM_NAME}" not in contents:
+        raise SystemExit("dpkg-deb --contents is missing the SBOM")
     print("dpkg-deb --info/--contents: OK")
 
 
@@ -636,6 +805,7 @@ def build(platform: str, clean: bool) -> Path:
         package_root / "data",
         package_root / "logs",
         package_root / "docs",
+        package_root / "nginx",
     ):
         directory.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -680,6 +850,15 @@ def build(platform: str, clean: bool) -> Path:
         ROOT / "BUILD_PROVENANCE.md",
         package_root / "BUILD_PROVENANCE.md",
     )
+    shutil.copy2(
+        ROOT / "docs" / THIRD_PARTY_NAME,
+        package_root / "docs" / THIRD_PARTY_NAME,
+    )
+    shutil.copy2(
+        ROOT / "nginx" / NGINX_CONF_NAME,
+        package_root / "nginx" / NGINX_CONF_NAME,
+    )
+    (package_root / SBOM_NAME).write_bytes(make_sbom(version))
 
     upstream_archive = fetch_upstream(platform)
     extract_upstream_binary(

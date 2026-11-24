@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>FileBrowser Quantum</title>
-  <link rel="stylesheet" href="./styles.css?v=2.0.4">
+  <link rel="stylesheet" href="./styles.css?v=2.0.5">
 </head>
 <body>
   <div id="loading" class="loading" role="status" aria-live="polite">
@@ -19,16 +19,17 @@
     id="appFrame"
     class="app-frame"
     title="FileBrowser Quantum"
-    src="/v2/proxy/filebrowser-quantum/?v=2.0.4"
+    src="/filebrowser-quantum/ui/?v=2.0.5"
     allow="clipboard-read; clipboard-write">
   </iframe>
 
   <div id="error" class="error" role="alert" hidden>
     <h1>FileBrowser Quantum is unavailable</h1>
-    <p id="errorDetail">The local service did not answer. Check the application service and logs, then retry.</p>
-    <a id="openDirect" href="/v2/proxy/filebrowser-quantum/?v=2.0.4" target="_blank" rel="noopener">Open directly</a>
+    <p id="errorDetail">The application did not render. Check the service and its diagnostic log, then retry.</p>
+    <p><button id="retry" type="button">Retry</button></p>
+    <a id="openDirect" href="/filebrowser-quantum/ui/?v=2.0.5" target="_blank" rel="noopener">Open directly</a>
   </div>
 
-  <script src="./app.js?v=2.0.4"></script>
+  <script src="./app.js?v=2.0.5"></script>
 </body>
 </html>

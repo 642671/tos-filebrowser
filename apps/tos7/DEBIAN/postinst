@@ -11,6 +11,9 @@ LAUNCHER="${APP_DIR}/bin/${APP_ID}-service"
 UPSTREAM_BIN="${APP_DIR}/bin/filebrowser"
 WEBUI_ARCHIVE="${APP_DIR}/webui.bz2"
 WEBUI_DIR="${APP_DIR}/webui"
+USR_WWW_DIR="/usr/www/${APP_ID}"
+NGINX_CONF_SRC="${APP_DIR}/nginx/${APP_ID}.conf"
+NGINX_CONF_DST="/etc/nginx/conf.d/${APP_ID}.conf"
 SOCKET_PATH="/var/api/${APP_ID}.sock"
 LOG_DIR="${APP_DIR}/logs"
 DIAG_FILE="${LOG_DIR}/postinst-diagnostic.txt"
@@ -37,6 +40,10 @@ collect_diagnostics() {
         printf '\n=== packaged webui ===\n'
         ls -l "${WEBUI_ARCHIVE}" 2>&1 || printf '%s missing\n' "${WEBUI_ARCHIVE}"
         ls -l "${WEBUI_DIR}/index.html" 2>&1 || printf '%s missing\n' "${WEBUI_DIR}/index.html"
+        printf '\n=== portal route ===\n'
+        ls -l "${NGINX_CONF_SRC}" 2>&1 || printf '%s missing\n' "${NGINX_CONF_SRC}"
+        ls -l "${NGINX_CONF_DST}" 2>&1 || printf '%s missing\n' "${NGINX_CONF_DST}"
+        ls -ld "${USR_WWW_DIR}" 2>&1 || printf '%s missing\n' "${USR_WWW_DIR}"
         printf '\n=== unit state ===\n'
         systemctl is-active "${SYSTEM_ID}.service" 2>&1 || true
         systemctl status --no-pager -l "${SYSTEM_ID}.service" 2>&1 || true
@@ -112,6 +119,33 @@ case "$1" in
         fi
         if [ -z "${WEBUI_ERROR}" ] && [ ! -f "${WEBUI_DIR}/index.html" ]; then
             WEBUI_ERROR="webui/index.html is missing after extraction"
+        fi
+
+        # TOS serves config.ini.path /<appid>/ from /usr/www/<appid>. App Center
+        # normally creates that symlink; a manual dpkg install does not.
+        if [ -d /usr/www ] && [ -f "${WEBUI_DIR}/index.html" ]; then
+            if [ -L "${USR_WWW_DIR}" ] || [ ! -e "${USR_WWW_DIR}" ]; then
+                ln -sfn "${WEBUI_DIR}" "${USR_WWW_DIR}" 2>/dev/null || true
+            elif [ -d "${USR_WWW_DIR}" ]; then
+                cp -f "${WEBUI_DIR}/index.html" "${USR_WWW_DIR}/index.html" 2>/dev/null || true
+                cp -f "${WEBUI_DIR}/app.js" "${USR_WWW_DIR}/app.js" 2>/dev/null || true
+                cp -f "${WEBUI_DIR}/styles.css" "${USR_WWW_DIR}/styles.css" 2>/dev/null || true
+                chmod -R a+rX "${USR_WWW_DIR}" 2>/dev/null || true
+            fi
+        fi
+
+        # The launcher iframe uses the app's own portal path. Deploy the nginx
+        # proxy route before the service starts so the first open cannot race it.
+        if [ -f "${NGINX_CONF_SRC}" ] && [ -d /etc/nginx/conf.d ]; then
+            cp -f "${NGINX_CONF_SRC}" "${NGINX_CONF_DST}" 2>/dev/null || true
+            if command -v nginx >/dev/null 2>&1 && nginx -t >/dev/null 2>&1; then
+                systemctl reload nginx 2>/dev/null \
+                    || nginx -s reload 2>/dev/null \
+                    || true
+                log INFO "portal route /${APP_ID}/ui/ deployed"
+            else
+                log WARN "nginx config check failed; /${APP_ID}/ui/ route not reloaded"
+            fi
         fi
 
         if [ ! -d /var/api ]; then

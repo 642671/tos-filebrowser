@@ -26,6 +26,7 @@ CONFIG = Path(os.environ.get("FILEBROWSER_CONFIG") or APP_DIR / "data" / "config
 SOCKET_PATH = os.environ.get("APP_SOCKET_PATH") or f"/var/api/{APP_ID}.sock"
 LISTEN = os.environ.get("FILEBROWSER_LISTEN") or "127.0.0.1"
 PORT = int(os.environ.get("FILEBROWSER_PORT") or "18742")
+BASE_PATH = f"/{APP_ID}/ui"
 PROXY_PREFIX = f"/v2/proxy/{APP_ID}"
 ADMIN_FILE = APP_DIR / "data" / "INITIAL_ADMIN.txt"
 BOOTSTRAP_FLAG = APP_DIR / "data" / ".bootstrap_done"
@@ -104,34 +105,53 @@ def ensure_layout() -> None:
             raise SystemExit(f"default config missing: {DEFAULT_CONFIG}")
         install_default_config()
         log("INFO", f"installed default config at {CONFIG}")
-    migrate_base_url()
+    migrate_config()
 
 
-def migrate_base_url() -> None:
-    """Point an existing 2.0.3 config at the TOS proxy prefix."""
+def migrate_config() -> None:
+    """Apply the wrapper application path and privacy defaults to a config."""
     if not CONFIG.is_file():
         return
     try:
         original = CONFIG.read_text(encoding="utf-8")
     except OSError as exc:
-        log("WARNING", f"cannot read {CONFIG} for baseURL migration: {exc}")
+        log("WARNING", f"cannot read {CONFIG} for migration: {exc}")
         return
-    updated, count = re.subn(
+    updated, base_count = re.subn(
         r'(?m)^(\s*baseURL:\s*).*$',
-        lambda match: match.group(1) + f'"{PROXY_PREFIX}/"',
+        lambda match: match.group(1) + f'"{BASE_PATH}/"',
         original,
     )
-    if count == 0 or updated == original:
+    updated, update_count = re.subn(
+        r'(?m)^(\s*disableUpdateCheck:\s*).*$',
+        r'\1true',
+        updated,
+        count=1,
+    )
+    if update_count == 0:
+        updated, update_count = re.subn(
+            r'(?m)^(server:[ \t]*(?:#.*)?)$',
+            r'\1\n  disableUpdateCheck: true',
+            updated,
+            count=1,
+        )
+    if update_count == 0:
+        updated = updated.rstrip("\n") + "\n\nserver:\n  disableUpdateCheck: true\n"
+    if updated == original:
         return
     tmp = CONFIG.with_suffix(CONFIG.suffix + ".tmp")
     try:
         tmp.write_text(updated, encoding="utf-8", newline="\n")
         tmp.replace(CONFIG)
     except OSError as exc:
-        log("WARNING", f"cannot migrate {CONFIG} baseURL: {exc}")
+        log("WARNING", f"cannot migrate {CONFIG}: {exc}")
         tmp.unlink(missing_ok=True)
         return
-    log("INFO", f"migrated http.baseURL in {CONFIG} to {PROXY_PREFIX}/")
+    log(
+        "INFO",
+        f"migrated {CONFIG}: baseURL={BASE_PATH}/ (changed={base_count}), "
+        f"disableUpdateCheck=true",
+    )
 
 
 def generate_password() -> str:
@@ -233,17 +253,19 @@ def main() -> int:
         if password and not BOOTSTRAP_FLAG.exists():
             BOOTSTRAP_FLAG.write_text("ok\n", encoding="utf-8", newline="\n")
         log("INFO", f"FileBrowser is listening on {LISTEN}:{PORT}")
-        # The TOS platform strips /v2/proxy/<appid> before forwarding to the
-        # socket. FileBrowser registers every route under http.baseURL, so the
-        # proxy restores that prefix instead of stripping it.
+        # Two routes reach the same upstream server:
+        #   1. nginx serves /filebrowser-quantum/ui/ directly from the portal.
+        #   2. The TOS platform socket route /v2/proxy/<appid>/... is kept for
+        #      compatibility and self-tests. Strip that platform prefix and
+        #      restore the application base path expected by FileBrowser.
         return serve_proxy(
             SOCKET_PATH,
             LISTEN,
             PORT,
-            strip_prefix="",
+            strip_prefix=PROXY_PREFIX,
             socket_mode=0o660,
-            path_prefix=PROXY_PREFIX,
-            path_aliases=(f"/{APP_ID}",),
+            path_prefix=BASE_PATH,
+            path_aliases=(f"/{APP_ID}", BASE_PATH),
             stop_event=stop_event,
         )
     finally:
